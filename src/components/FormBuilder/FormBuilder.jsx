@@ -31,7 +31,8 @@ export default function FormBuilder({ formConfig, setFormConfig, published, onPu
   };
 
   const slug = formConfig.position.toLowerCase().replace(/\s+/g, "-");
-  const publicLink = `https://forms.baazarrms.app/apply/${slug}`;
+  const appUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+  const publicLink = `${appUrl}/apply/${slug}`;
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
