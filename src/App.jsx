@@ -15,6 +15,7 @@ import SettingsPage from "./components/SettingsPage";
 import Toast from "./components/shared/Toast";
 import { DEFAULT_FORM, SEED_APPLICATIONS } from "./data/constants";
 import { daysAgo } from "./utils/helpers";
+import { Routes, Route, useNavigate } from "react-router-dom";
 
 export default function App() {
   const [view, setView] = useState("dashboard");
@@ -32,6 +33,8 @@ export default function App() {
     { id: 2, msg: "Arjun Sen moved to Final Shortlist", time: daysAgo(3) },
     { id: 3, msg: "Rajesh Kumar moved to Screening", time: daysAgo(4) },
   ]);
+
+const navigate = useNavigate();
 
 useEffect(() => {
   const loadForm = async () => {
@@ -128,11 +131,9 @@ const saveForm = async (statusValue) => {
     settings: ["Settings", "Company and system preferences"],
   };
 
-  if (view === "candidate") {
-    return <CandidatePortal formConfig={formConfig} onSubmit={handleCandidateSubmit} onExit={() => setView("builder")} />;
-  }
-
-  return (
+  const hrPortal = view === "candidate"
+  ? <CandidatePortal formConfig={formConfig} onSubmit={handleCandidateSubmit} onExit={() => setView("builder")} />
+  : (
     <div className="h-screen w-full flex bg-slate-50" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
       <Sidebar view={view} setView={setView} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} onPreview={() => setView("candidate")} />
       <div className="flex-1 flex flex-col min-w-0">
@@ -160,5 +161,12 @@ const saveForm = async (statusValue) => {
       <CandidateDrawer candidate={drawerCandidate} onClose={() => setDrawerCandidate(null)} onMoveToScreening={handleMoveToScreening} />
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </div>
+  );
+
+  return (
+    <Routes>
+      <Route path="/apply/:slug" element={<CandidatePortal formConfig={formConfig} onSubmit={handleCandidateSubmit} onExit={() => navigate("/")} />} />
+      <Route path="/*" element={hrPortal} />
+    </Routes>
   );
 }
