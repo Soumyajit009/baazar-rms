@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Check, ArrowLeft, Upload } from "lucide-react";
 import { fmtDate } from "../utils/helpers";
 
-export default function CandidatePortal({ formConfig, onSubmit, onExit }) {
+export default function CandidatePortal({ formConfig, onSubmit, onExit, isPublic = false }) {
   const [values, setValues] = useState({});
   const [declared, setDeclared] = useState(false);
   const [submitted, setSubmitted] = useState(null);
@@ -31,7 +31,11 @@ export default function CandidatePortal({ formConfig, onSubmit, onExit }) {
           <div className="bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-600 mb-6">
             Reference ID: <span className="font-semibold text-slate-900">{submitted.id}</span>
           </div>
-          <button onClick={onExit} className="text-sm text-blue-600 font-medium hover:underline">Exit Preview</button>
+          {!isPublic ? (
+  <button onClick={onExit} className="text-sm text-blue-600 font-medium hover:underline">Exit Preview</button>
+) : (
+  <p className="text-xs text-slate-400">You may now close this window.</p>
+)}
         </div>
       </div>
     );
@@ -40,9 +44,11 @@ export default function CandidatePortal({ formConfig, onSubmit, onExit }) {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <button onClick={onExit} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 mb-4">
-          <ArrowLeft size={13} /> Exit Preview
-        </button>
+        {!isPublic && (
+  <button onClick={onExit} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 mb-4">
+    <ArrowLeft size={13} /> Exit Preview
+  </button>
+)}
         <div className="bg-white border-t-4 border-blue-600 rounded-xl shadow-sm p-6 sm:p-8">
           <h1 className="text-xl font-bold text-slate-900">{formConfig.title}</h1>
           <p className="text-slate-500 text-sm mt-1">{formConfig.description}</p>
