@@ -16,11 +16,15 @@ import Toast from "./components/shared/Toast";
 import { DEFAULT_FORM, SEED_APPLICATIONS } from "./data/constants";
 import { daysAgo } from "./utils/helpers";
 import { Routes, Route, useNavigate } from "react-router-dom";
+import Login from "./components/auth/Login";
 
 export default function App() {
   const [view, setView] = useState("dashboard");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [theme, setTheme] = useState("light");
+  useEffect(() => {
+  document.documentElement.classList.toggle("dark", theme === "dark");
+}, [theme]);
   const [formConfig, setFormConfig] = useState(DEFAULT_FORM);
   const [formId, setFormId] = useState(null);
   const [published, setPublished] = useState(false);
@@ -35,6 +39,8 @@ export default function App() {
   ]);
 
 const navigate = useNavigate();
+const [session, setSession] = useState(null);
+const [authLoading, setAuthLoading] = useState(true);
 
 useEffect(() => {
   const loadForm = async () => {
@@ -55,6 +61,19 @@ useEffect(() => {
     setLoadingForm(false);
   };
   loadForm();
+}, []);
+
+useEffect(() => {
+  supabase.auth.getSession().then(({ data }) => {
+    setSession(data.session);
+    setAuthLoading(false);
+  });
+
+  const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    setSession(newSession);
+  });
+
+  return () => listener.subscription.unsubscribe();
 }, []);
 
 const saveForm = async (statusValue) => {
@@ -121,6 +140,12 @@ const saveForm = async (statusValue) => {
     return record;
   };
 
+if (authLoading) return null;
+
+if (!session && window.location.pathname === "/") {
+  return <Login onLoginSuccess={() => {}} />;
+}
+
   const titles = {
     dashboard: ["Dashboard", "Overview of hiring activity"],
     builder: ["Candidate Form Builder", "Design and publish your application form"],
@@ -134,8 +159,8 @@ const saveForm = async (statusValue) => {
   const hrPortal = view === "candidate"
   ? <CandidatePortal formConfig={formConfig} onSubmit={handleCandidateSubmit} onExit={() => setView("builder")} />
   : (
-    <div className="h-screen w-full flex bg-slate-50" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
-      <Sidebar view={view} setView={setView} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} onPreview={() => setView("candidate")} />
+    <div className="h-screen w-full flex bg-slate-50 dark:bg-slate-950" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+      <Sidebar view={view} setView={setView} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} onPreview={() => setView("candidate")} onLogout={() => supabase.auth.signOut()} />
       <div className="flex-1 flex flex-col min-w-0">
         <TopBar title={titles[view][0]} subtitle={titles[view][1]} setMobileOpen={setMobileOpen} theme={theme} setTheme={setTheme} />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
@@ -155,7 +180,7 @@ const saveForm = async (statusValue) => {
           {view === "screening" && <ScreeningProcess applications={applications} onRate={handleRate} onNotes={handleNotes} onReject={handleReject} onHold={handleHold} onMoveToShortlist={handleMoveToShortlist} />}
           {view === "shortlist" && <FinalShortlist applications={applications} onInterviewStatus={handleInterviewStatus} onMarkSelected={handleMarkSelected} onReject={handleReject} />}
           {view === "ats" && <AtsComingSoon />}
-          {view === "settings" && <SettingsPage />}
+          {view === "settings" && <SettingsPage showToast={showToast} />}
         </main>
       </div>
       <CandidateDrawer candidate={drawerCandidate} onClose={() => setDrawerCandidate(null)} onMoveToScreening={handleMoveToScreening} />

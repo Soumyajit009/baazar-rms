@@ -27,7 +27,7 @@ export default function Dashboard({ applications, activityLog }) {
     { label: "This Month", value: thisMonth, icon: ClipboardList, color: "text-violet-600 bg-violet-50" },
     { label: "In Screening", value: inScreening, icon: FilterIcon, color: "text-orange-600 bg-orange-50" },
     { label: "Final Shortlisted", value: shortlisted, icon: Trophy, color: "text-emerald-600 bg-emerald-50" },
-    { label: "Resume Storage Used", value: "184 MB / 500 MB", icon: HardDrive, color: "text-slate-600 bg-slate-100", isText: true },
+    { label: "Resume Storage Used", value: "184 MB / 500 MB", icon: HardDrive, color: "text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800", isText: true },
   ];
 
   const perDay = [...Array(7)].map((_, i) => {
@@ -51,19 +51,19 @@ export default function Dashboard({ applications, activityLog }) {
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {cards.map((c) => (
-          <div key={c.label} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+          <div key={c.label} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${c.color}`}>
               <c.icon size={18} />
             </div>
-            <p className={`font-semibold text-slate-900 ${c.isText ? "text-sm" : "text-2xl"}`}>{c.value}</p>
-            <p className="text-slate-400 text-xs mt-0.5">{c.label}</p>
+            <p className={`font-semibold text-slate-900 dark:text-white ${c.isText ? "text-sm" : "text-2xl"}`}>{c.value}</p>
+            <p className="text-slate-400 dark:text-slate-500 text-xs mt-0.5">{c.label}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-900 mb-4">Applications Per Day</p>
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <p className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Applications Per Day</p>
           <div style={{ width: "100%", height: 220 }}>
             <ResponsiveContainer>
               <BarChart data={perDay}>
@@ -76,8 +76,8 @@ export default function Dashboard({ applications, activityLog }) {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-900 mb-4">Applications By Position</p>
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <p className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Applications By Position</p>
           <div style={{ width: "100%", height: 180 }}>
             <ResponsiveContainer>
               <PieChart>
@@ -90,7 +90,7 @@ export default function Dashboard({ applications, activityLog }) {
           </div>
           <div className="space-y-1.5 mt-2">
             {byPosition.map((p, i) => (
-              <div key={p.name} className="flex items-center gap-2 text-xs text-slate-500">
+              <div key={p.name} className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                 <span className="w-2 h-2 rounded-full" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
                 {p.name} · {p.value}
               </div>
@@ -100,15 +100,15 @@ export default function Dashboard({ applications, activityLog }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-900 mb-4">Qualification Distribution</p>
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <p className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Qualification Distribution</p>
           <div className="space-y-3">
             {byQualification.map(([label, count]) => (
               <div key={label}>
-                <div className="flex justify-between text-xs text-slate-500 mb-1">
+                <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
                   <span>{label}</span><span>{count}</span>
                 </div>
-                <div className="h-2 rounded-full bg-slate-100">
+                <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-800">
                   <div className="h-2 rounded-full bg-blue-600" style={{ width: `${(count / total) * 100}%` }} />
                 </div>
               </div>
@@ -116,15 +116,15 @@ export default function Dashboard({ applications, activityLog }) {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-900 mb-4">Recent Activity</p>
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <p className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Recent Activity</p>
           <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
             {activityLog.slice(0, 8).map((a) => (
               <div key={a.id} className="flex gap-3 text-xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
                 <div>
-                  <p className="text-slate-600">{a.msg}</p>
-                  <p className="text-slate-400">{fmtDateTime(a.time)}</p>
+                  <p className="text-slate-600 dark:text-slate-300">{a.msg}</p>
+                  <p className="text-slate-400 dark:text-slate-500">{fmtDateTime(a.time)}</p>
                 </div>
               </div>
             ))}
@@ -132,11 +132,11 @@ export default function Dashboard({ applications, activityLog }) {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-100"><p className="text-sm font-semibold text-slate-900">Recent Applications</p></div>
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800"><p className="text-sm font-semibold text-slate-900 dark:text-white">Recent Applications</p></div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-slate-400 text-xs uppercase tracking-wide">
+            <thead className="bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-xs uppercase tracking-wide">
               <tr>
                 <th className="text-left px-5 py-2.5 font-medium">Candidate</th>
                 <th className="text-left px-5 py-2.5 font-medium">Position</th>
@@ -146,10 +146,10 @@ export default function Dashboard({ applications, activityLog }) {
             </thead>
             <tbody>
               {[...applications].sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt)).slice(0, 5).map((a) => (
-                <tr key={a.id} className="border-t border-slate-100">
-                  <td className="px-5 py-2.5 text-slate-700">{a.name}</td>
-                  <td className="px-5 py-2.5 text-slate-500">{a.position}</td>
-                  <td className="px-5 py-2.5 text-slate-500">{fmtDate(a.appliedAt)}</td>
+                <tr key={a.id} className="border-t border-slate-100 dark:border-slate-800">
+                  <td className="px-5 py-2.5 text-slate-700 dark:text-slate-200">{a.name}</td>
+                  <td className="px-5 py-2.5 text-slate-500 dark:text-slate-400">{a.position}</td>
+                  <td className="px-5 py-2.5 text-slate-500 dark:text-slate-400">{fmtDate(a.appliedAt)}</td>
                   <td className="px-5 py-2.5"><StatusBadge status={a.status} /></td>
                 </tr>
               ))}

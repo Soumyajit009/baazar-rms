@@ -30,9 +30,17 @@ export default function FormBuilder({ formConfig, setFormConfig, published, onPu
     setFormConfig((f) => ({ ...f, fields: [...f.fields, nf] }));
   };
 
-  const slug = formConfig.position.toLowerCase().replace(/\s+/g, "-");
   const appUrl = import.meta.env.VITE_APP_URL || window.location.origin;
-  const publicLink = `${appUrl}/apply/${slug}`;
+  const publicLink = `${appUrl}/apply`;
+  const downloadQR = () => {
+  const canvas = document.getElementById("rms-qr-canvas");
+  if (!canvas) return;
+  const url = canvas.toDataURL("image/png");
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "baazar-rms-application-qr.png";
+  a.click();
+};
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
@@ -182,7 +190,7 @@ export default function FormBuilder({ formConfig, setFormConfig, published, onPu
             <button onClick={onPreview} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50">
               <Link2 size={13} /> Open Form
             </button>
-            <button onClick={() => showToast("QR download available once connected to backend")} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50">
+            <button onClick={downloadQR} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50">
               <QrCode size={13} /> Download QR
             </button>
           </div>

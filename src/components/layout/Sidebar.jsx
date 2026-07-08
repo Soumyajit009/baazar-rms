@@ -1,7 +1,7 @@
 import { Eye, LogOut } from "lucide-react";
 import { NAV_ITEMS } from "../../data/constants";
 
-export default function Sidebar({ view, setView, mobileOpen, setMobileOpen, onPreview }) {
+export default function Sidebar({ view, setView, mobileOpen, setMobileOpen, onPreview, onLogout }) {
   return (
     <>
       {mobileOpen && (
@@ -36,10 +36,10 @@ export default function Sidebar({ view, setView, mobileOpen, setMobileOpen, onPr
             <Eye size={17} />
             Preview Candidate Form
           </button>
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-slate-800 hover:text-white transition-colors">
-            <LogOut size={17} />
-            Logout
-          </button>
+          <button onClick={onLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-slate-800 hover:text-white transition-colors">
+  <LogOut size={17} />
+  Logout
+</button>
         </div>
       </aside>
     </>
