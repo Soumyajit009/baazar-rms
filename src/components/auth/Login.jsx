@@ -5,7 +5,6 @@ import { supabase } from "../../lib/supabase";
 // Admins type a plain username (e.g. "soumyajit").
 // Supabase Auth requires an email format internally, so we translate it here.
 // This suffix is never shown to the user.
-const EMAIL_SUFFIX = "@admin.mis";
 
 export default function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState("");
@@ -23,20 +22,29 @@ export default function Login({ onLoginSuccess }) {
       return;
     }
 
-    setLoading(true);
-    const email = `${username.trim().toLowerCase()}${EMAIL_SUFFIX}`;
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    setLoading(false);
+  setLoading(true);
+const cleanUsername = username.trim().toLowerCase();
 
-    if (authError) {
-      setError("Incorrect username or password.");
-      return;
-    }
+let { data, error: authError } = await supabase.auth.signInWithPassword({
+  email: `${cleanUsername}@admin.mis`,
+  password,
+});
 
-    onLoginSuccess(data.user);
+if (authError) {
+  ({ data, error: authError } = await supabase.auth.signInWithPassword({
+    email: `${cleanUsername}@admin.hr`,
+    password,
+  }));
+}
+
+setLoading(false);
+
+if (authError) {
+  setError("Incorrect username or password.");
+  return;
+}
+
+onLoginSuccess(data.user);
   };
 
   return (

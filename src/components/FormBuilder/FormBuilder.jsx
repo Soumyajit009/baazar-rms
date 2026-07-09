@@ -32,13 +32,13 @@ export default function FormBuilder({ formConfig, setFormConfig, published, onPu
 
   const appUrl = import.meta.env.VITE_APP_URL || window.location.origin;
   const publicLink = `${appUrl}/apply`;
-  const downloadQR = () => {
-  const canvas = document.getElementById("rms-qr-canvas");
+  const downloadQR = (canvasId, filename) => {
+  const canvas = document.getElementById(canvasId);
   if (!canvas) return;
   const url = canvas.toDataURL("image/png");
   const a = document.createElement("a");
   a.href = url;
-  a.download = "baazar-rms-application-qr.png";
+  a.download = filename;
   a.click();
 };
 
@@ -158,7 +158,7 @@ export default function FormBuilder({ formConfig, setFormConfig, published, onPu
       </div>
 
       <div className="space-y-5">
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm sticky top-20">
+        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm sticky top-0">
           <p className="text-sm font-semibold text-slate-900 mb-3">Live Preview</p>
           <div className="border border-slate-200 rounded-xl p-4 space-y-3 max-h-80 overflow-y-auto bg-slate-50/50">
             <p className="font-semibold text-slate-800 text-sm">{formConfig.title}</p>
@@ -174,27 +174,44 @@ export default function FormBuilder({ formConfig, setFormConfig, published, onPu
         </div>
 
         <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
-          <p className="text-sm font-semibold text-slate-900">Share Form</p>
-          <QRPlaceholder value={publicLink} />
-          <p className="text-xs text-slate-400 text-center">Visual QR preview — connects to a live generator once the backend is wired up.</p>
-          <div className="flex items-center gap-2">
-            <input readOnly value={publicLink} className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-500 bg-slate-50" />
-            <button
-              onClick={() => { navigator.clipboard?.writeText(publicLink).catch(() => {}); showToast("Link copied to clipboard"); }}
-              className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50"
-            >
-              <Copy size={15} className="text-slate-500" />
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <button onClick={onPreview} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50">
-              <Link2 size={13} /> Open Form
-            </button>
-            <button onClick={downloadQR} className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50">
-              <QrCode size={13} /> Download QR
-            </button>
-          </div>
-        </div>
+  <p className="text-sm font-semibold text-slate-900">Share Form</p>
+
+  <div>
+    <p className="text-xs text-slate-500 mb-2 text-center">Baazar Kolkata</p>
+    <QRPlaceholder value={publicLink} logoSrc="/logo-baazar-kolkata.png" canvasId="qr-baazar" />
+    <button
+      onClick={() => downloadQR("qr-baazar", "baazar-kolkata-application-qr.png")}
+      className="w-full mt-2 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50"
+    >
+      <QrCode size={13} /> Download QR
+    </button>
+  </div>
+
+  <div className="pt-2 border-t border-slate-100">
+    <p className="text-xs text-slate-500 mb-2 text-center">Fashion City</p>
+    <QRPlaceholder value={publicLink} logoSrc="/logo-fashion-city.png" canvasId="qr-fashioncity" />
+    <button
+      onClick={() => downloadQR("qr-fashioncity", "fashion-city-application-qr.png")}
+      className="w-full mt-2 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50"
+    >
+      <QrCode size={13} /> Download QR
+    </button>
+  </div>
+
+  <p className="text-xs text-slate-400 text-center pt-2 border-t border-slate-100">Both QR codes always lead to the same application form — never changes.</p>
+  <div className="flex items-center gap-2">
+    <input readOnly value={publicLink} className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-500 bg-slate-50" />
+    <button
+      onClick={() => { navigator.clipboard?.writeText(publicLink).catch(() => {}); showToast("Link copied to clipboard"); }}
+      className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50"
+    >
+      <Copy size={15} className="text-slate-500" />
+    </button>
+  </div>
+  <button onClick={onPreview} className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50">
+    <Link2 size={13} /> Open Form
+  </button>
+</div>
       </div>
     </div>
   );

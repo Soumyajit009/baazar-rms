@@ -142,9 +142,9 @@ const saveForm = async (statusValue) => {
 
 if (authLoading) return null;
 
-if (!session && window.location.pathname === "/") {
-  return <Login onLoginSuccess={() => {}} />;
-}
+if (!session && window.location.pathname !== "/apply") {
+     return <Login onLoginSuccess={() => {}} />;
+   }
 
   const titles = {
     dashboard: ["Dashboard", "Overview of hiring activity"],

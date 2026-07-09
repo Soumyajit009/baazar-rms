@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import QRCode from "qrcode";
 
-export default function QRPlaceholder({ value }) {
+export default function QRPlaceholder({ value, logoSrc, canvasId }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function QRPlaceholder({ value }) {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
       const logo = new Image();
-      logo.src = "/logo.svg";
+      logo.src = logoSrc;
       logo.onload = () => {
         const logoSize = canvas.width * 0.22;
         const cx = canvas.width / 2;
@@ -30,11 +30,11 @@ export default function QRPlaceholder({ value }) {
         ctx.drawImage(logo, cx - logoSize / 2, cy - logoSize / 2, logoSize, logoSize);
       };
     }).catch((err) => console.error("QR generation failed:", err));
-  }, [value]);
+  }, [value, logoSrc]);
 
   return (
     <canvas
-      id="rms-qr-canvas"
+      id={canvasId}
       ref={canvasRef}
       className="mx-auto rounded-lg border border-slate-200"
     />
