@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { Search, Filter as FilterIcon, Download } from "lucide-react";
 import StarRating from "./shared/StarRating";
+import StatusBadge from "./shared/StatusBadge";
 import EmptyState from "./shared/EmptyState";
 import { exportCSV } from "../utils/helpers";
 
-export default function ScreeningProcess({ applications, onRate, onNotes, onReject, onHold, onMoveToShortlist }) {
+export default function ScreeningProcess({ applications, onRate, onNotes, onReject, onHold, onResume, onMoveToShortlist }) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState([]);
 
-  const rows = applications.filter((a) => a.status === "Screening" && a.name.toLowerCase().includes(search.toLowerCase()));
+  const rows = applications
+    .filter((a) => a.status === "Screening" || a.status === "Hold")
+    .filter((a) => a.name.toLowerCase().includes(search.toLowerCase()));
   const allSelected = rows.length > 0 && selected.length === rows.length;
 
   return (
@@ -27,12 +30,13 @@ export default function ScreeningProcess({ applications, onRate, onNotes, onReje
         )}
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm min-w-[960px]">
+        <table className="w-full text-sm min-w-[980px]">
           <thead className="bg-slate-50 text-slate-400 text-xs uppercase tracking-wide">
             <tr>
               <th className="px-4 py-2.5"><input type="checkbox" checked={allSelected} onChange={(e) => setSelected(e.target.checked ? rows.map((r) => r.id) : [])} className="accent-blue-600" /></th>
               <th className="text-left px-4 py-2.5 font-medium">Candidate</th>
               <th className="text-left px-4 py-2.5 font-medium">Position</th>
+              <th className="text-left px-4 py-2.5 font-medium">Status</th>
               <th className="text-left px-4 py-2.5 font-medium">HR Rating</th>
               <th className="text-left px-4 py-2.5 font-medium">Notes</th>
               <th className="text-left px-4 py-2.5 font-medium">Actions</th>
@@ -40,13 +44,14 @@ export default function ScreeningProcess({ applications, onRate, onNotes, onReje
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id} className="border-t border-slate-100 align-top">
+              <tr key={r.id} className={`border-t border-slate-100 align-top ${r.status === "Hold" ? "bg-slate-50/60" : ""}`}>
                 <td className="px-4 py-3"><input type="checkbox" checked={selected.includes(r.id)} onChange={(e) => setSelected(e.target.checked ? [...selected, r.id] : selected.filter((s) => s !== r.id))} className="accent-blue-600" /></td>
                 <td className="px-4 py-3">
                   <p className="font-medium text-slate-800">{r.name}</p>
-                  <p className="text-xs text-slate-400">{r.id}</p>
+                  <p className="text-xs text-slate-400">{r.candidateCode}</p>
                 </td>
                 <td className="px-4 py-3 text-slate-500">{r.position}</td>
+                <td className="px-4 py-3"><StatusBadge status={r.status} /></td>
                 <td className="px-4 py-3"><StarRating value={r.rating} onChange={(v) => onRate(r.id, v)} /></td>
                 <td className="px-4 py-3 w-64">
                   <input
@@ -59,7 +64,11 @@ export default function ScreeningProcess({ applications, onRate, onNotes, onReje
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1.5">
                     <button onClick={() => onMoveToShortlist(r.id)} className="text-xs px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-medium">Shortlist</button>
-                    <button onClick={() => onHold(r.id)} className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-500 font-medium">Hold</button>
+                    {r.status === "Hold" ? (
+                      <button onClick={() => onResume(r.id)} className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-500 font-medium">Resume</button>
+                    ) : (
+                      <button onClick={() => onHold(r.id)} className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-500 font-medium">Hold</button>
+                    )}
                     <button onClick={() => onReject(r.id)} className="text-xs px-2.5 py-1.5 rounded-lg border border-red-200 text-red-500 font-medium">Reject</button>
                   </div>
                 </td>
