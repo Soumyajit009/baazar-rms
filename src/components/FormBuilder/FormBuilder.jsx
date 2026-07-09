@@ -30,8 +30,8 @@ export default function FormBuilder({ formConfig, setFormConfig, published, onPu
     setFormConfig((f) => ({ ...f, fields: [...f.fields, nf] }));
   };
 
-  const appUrl = import.meta.env.VITE_APP_URL || window.location.origin;
-  const publicLink = `${appUrl}/apply`;
+ const appUrl = (import.meta.env.VITE_APP_URL || window.location.origin).replace(/\/$/, "");
+ const publicLink = `${appUrl}/apply`;
   const downloadQR = (canvasId, filename) => {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
