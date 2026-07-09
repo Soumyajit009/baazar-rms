@@ -1,25 +1,36 @@
 import { useState } from "react";
-import { Search, Filter as FilterIcon } from "lucide-react";
+import { Search, Filter as FilterIcon, Download } from "lucide-react";
 import StarRating from "./shared/StarRating";
 import EmptyState from "./shared/EmptyState";
+import { exportCSV } from "../utils/helpers";
 
 export default function ScreeningProcess({ applications, onRate, onNotes, onReject, onHold, onMoveToShortlist }) {
   const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState([]);
+
   const rows = applications.filter((a) => a.status === "Screening" && a.name.toLowerCase().includes(search.toLowerCase()));
+  const allSelected = rows.length > 0 && selected.length === rows.length;
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-      <div className="p-4 flex items-center gap-3 border-b border-slate-100">
+      <div className="p-4 flex flex-wrap items-center gap-3 border-b border-slate-100">
         <div className="relative flex-1 min-w-[180px]">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search candidates..." className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40" />
         </div>
         <span className="text-xs text-slate-400 bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-lg">ATS scoring arrives in Phase 2</span>
+        {selected.length > 0 && (
+          <>
+            <button onClick={() => { selected.forEach(onMoveToShortlist); setSelected([]); }} className="text-sm px-3 py-2 rounded-lg bg-blue-600 text-white font-medium">Shortlist ({selected.length})</button>
+            <button onClick={() => exportCSV(rows.filter((r) => selected.includes(r.id)), "selected_screening.csv")} className="text-sm px-3 py-2 rounded-lg border border-slate-200 font-medium text-slate-600 flex items-center gap-1.5"><Download size={14} /> Export</button>
+          </>
+        )}
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm min-w-[900px]">
+        <table className="w-full text-sm min-w-[960px]">
           <thead className="bg-slate-50 text-slate-400 text-xs uppercase tracking-wide">
             <tr>
+              <th className="px-4 py-2.5"><input type="checkbox" checked={allSelected} onChange={(e) => setSelected(e.target.checked ? rows.map((r) => r.id) : [])} className="accent-blue-600" /></th>
               <th className="text-left px-4 py-2.5 font-medium">Candidate</th>
               <th className="text-left px-4 py-2.5 font-medium">Position</th>
               <th className="text-left px-4 py-2.5 font-medium">HR Rating</th>
@@ -30,6 +41,7 @@ export default function ScreeningProcess({ applications, onRate, onNotes, onReje
           <tbody>
             {rows.map((r) => (
               <tr key={r.id} className="border-t border-slate-100 align-top">
+                <td className="px-4 py-3"><input type="checkbox" checked={selected.includes(r.id)} onChange={(e) => setSelected(e.target.checked ? [...selected, r.id] : selected.filter((s) => s !== r.id))} className="accent-blue-600" /></td>
                 <td className="px-4 py-3">
                   <p className="font-medium text-slate-800">{r.name}</p>
                   <p className="text-xs text-slate-400">{r.id}</p>
