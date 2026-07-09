@@ -190,7 +190,7 @@ if (!session && window.location.pathname !== "/apply") {
 
   return (
     <Routes>
-      <Route path="/apply/:slug" element={<CandidatePortal formConfig={formConfig} onSubmit={handleCandidateSubmit} isPublic />} />
+      <Route path="/apply" element={<CandidatePortal formConfig={formConfig} onSubmit={handleCandidateSubmit} isPublic />} />
       <Route path="/*" element={hrPortal} />
     </Routes>
   );
