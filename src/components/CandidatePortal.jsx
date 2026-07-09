@@ -53,24 +53,36 @@ export default function CandidatePortal({ formConfig, formId, onSubmitted, onExi
 
       const candidateCode = await generateCandidateCode();
 
-      const { data: application, error: applicationError } = await supabase
-        .from("applications")
-        .insert({
-          candidate_code: candidateCode,
-          candidate_id: candidate.id,
-          job_form_id: formId || null,
-          position: formConfig.position,
-          qualification: findFieldValue(fields, values, "qualification") || null,
-          experience: findFieldValue(fields, values, "experience") || null,
-          current_company: findFieldValue(fields, values, "current company") || null,
-          expected_salary: findFieldValue(fields, values, "expected salary") || null,
-          languages: findFieldValue(fields, values, "language") || null,
-          status: "New",
-        })
-        .select()
-        .single();
+      const applicationPayload = {
+  candidate_code: candidateCode,
+  candidate_id: candidate.id,
+  job_form_id: formId || null,
+  position: formConfig.position,
+  qualification: findFieldValue(fields, values, "qualification") || null,
+  experience: findFieldValue(fields, values, "experience") || null,
+  current_company: findFieldValue(fields, values, "current company") || null,
+  expected_salary: findFieldValue(fields, values, "expected salary") || null,
+  languages: findFieldValue(fields, values, "language") || null,
+  status: "New",
+};
 
-      if (applicationError) throw applicationError;
+let { data: application, error: applicationError } = await supabase
+  .from("applications")
+  .insert(applicationPayload)
+  .select()
+  .single();
+
+// If the linked job form no longer exists, retry without that link
+// rather than losing the candidate's application entirely.
+if (applicationError?.code === "23503") {
+  ({ data: application, error: applicationError } = await supabase
+    .from("applications")
+    .insert({ ...applicationPayload, job_form_id: null })
+    .select()
+    .single());
+}
+
+if (applicationError) throw applicationError;
 
       if (resumeFile) {
         const storagePath = `${candidateCode}/${resumeFile.name}`;
