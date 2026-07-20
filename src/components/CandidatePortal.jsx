@@ -8,10 +8,10 @@ function findFieldValue(fields, values, labelPart) {
   return field ? values[field.id] || "" : "";
 }
 
-async function generateCandidateCode() {
+function generateCandidateCode() {
   const year = new Date().getFullYear();
-  const { count } = await supabase.from("applications").select("id", { count: "exact", head: true });
-  return `CAND-${year}-${String((count || 0) + 1).padStart(4, "0")}`;
+  const unique = crypto.randomUUID().split("-")[0].toUpperCase();
+  return `CAND-${year}-${unique}`;
 }
 
 export default function CandidatePortal({ formConfig, formId, onSubmitted, onExit, isPublic = false }) {
@@ -25,6 +25,7 @@ export default function CandidatePortal({ formConfig, formId, onSubmitted, onExi
   const setVal = (id, v) => setValues((old) => ({ ...old, [id]: v }));
 
   const handleSubmit = async () => {
+    if (submitting) return;
     const missing = formConfig.fields.find((f) => f.required && !["Section Title", "Divider"].includes(f.type) && !values[f.id]);
     if (missing) { setError(`Please fill "${missing.label}" before submitting.`); return; }
     if (!declared) { setError("Please accept the declaration to continue."); return; }
@@ -34,9 +35,11 @@ export default function CandidatePortal({ formConfig, formId, onSubmitted, onExi
     try {
       const fields = formConfig.fields;
 
-      const { data: candidate, error: candidateError } = await supabase
+      const candidateId = crypto.randomUUID();
+      const { error: candidateError } = await supabase
         .from("candidates")
         .insert({
+          id: candidateId,
           full_name: findFieldValue(fields, values, "full name") || "Candidate",
           phone: findFieldValue(fields, values, "mobile") || null,
           email: findFieldValue(fields, values, "email") || null,
@@ -45,44 +48,39 @@ export default function CandidatePortal({ formConfig, formId, onSubmitted, onExi
           address: findFieldValue(fields, values, "address") || null,
           state: findFieldValue(fields, values, "state") || null,
           city: findFieldValue(fields, values, "city") || null,
-        })
-        .select()
-        .single();
+        });
 
       if (candidateError) throw candidateError;
+      const candidate = { id: candidateId, full_name: findFieldValue(fields, values, "full name") || "Candidate" };
 
-      const candidateCode = await generateCandidateCode();
+      const candidateCode = generateCandidateCode();
 
       const applicationPayload = {
-  candidate_code: candidateCode,
-  candidate_id: candidate.id,
-  job_form_id: formId || null,
-  position: formConfig.position,
-  qualification: findFieldValue(fields, values, "qualification") || null,
-  experience: findFieldValue(fields, values, "experience") || null,
-  current_company: findFieldValue(fields, values, "current company") || null,
-  expected_salary: findFieldValue(fields, values, "expected salary") || null,
-  languages: findFieldValue(fields, values, "language") || null,
-  status: "New",
-};
+        candidate_code: candidateCode,
+        candidate_id: candidate.id,
+        job_form_id: formId || null,
+        position: formConfig.position,
+        qualification: findFieldValue(fields, values, "qualification") || null,
+        experience: findFieldValue(fields, values, "experience") || null,
+        current_company: findFieldValue(fields, values, "current company") || null,
+        expected_salary: findFieldValue(fields, values, "expected salary") || null,
+        languages: findFieldValue(fields, values, "language") || null,
+        status: "New",
+      };
 
-let { data: application, error: applicationError } = await supabase
-  .from("applications")
-  .insert(applicationPayload)
-  .select()
-  .single();
+      const applicationId = crypto.randomUUID();
+      let { error: applicationError } = await supabase
+        .from("applications")
+        .insert({ id: applicationId, ...applicationPayload });
 
-// If the linked job form no longer exists, retry without that link
-// rather than losing the candidate's application entirely.
-if (applicationError?.code === "23503") {
-  ({ data: application, error: applicationError } = await supabase
-    .from("applications")
-    .insert({ ...applicationPayload, job_form_id: null })
-    .select()
-    .single());
-}
+      if (applicationError?.code === "23503") {
+        ({ error: applicationError } = await supabase
+          .from("applications")
+          .insert({ id: applicationId, ...applicationPayload, job_form_id: null }));
+      }
 
-if (applicationError) throw applicationError;
+      if (applicationError) throw applicationError;
+      const application = { id: applicationId };
 
       if (resumeFile) {
         const storagePath = `${candidateCode}/${resumeFile.name}`;
