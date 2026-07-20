@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Search, Download, Trash2, Eye, ChevronRight, Inbox } from "lucide-react";
 import StatusBadge from "./shared/StatusBadge";
 import EmptyState from "./shared/EmptyState";
-import { fmtDate, exportCSV } from "../utils/helpers";
+import { fmtDateShortTime, exportCSV } from "../utils/helpers";
 
 export default function NewApplications({ applications, onMoveToScreening, onDelete, onView }) {
   const [search, setSearch] = useState("");
@@ -52,11 +52,11 @@ export default function NewApplications({ applications, onMoveToScreening, onDel
             {rows.map((r) => (
               <tr key={r.id} className="border-t border-slate-100 hover:bg-slate-50/60">
                 <td className="px-4 py-3"><input type="checkbox" checked={selected.includes(r.id)} onChange={(e) => setSelected(e.target.checked ? [...selected, r.id] : selected.filter((s) => s !== r.id))} className="accent-blue-600" /></td>
-                <td className="px-4 py-3 text-slate-500 text-xs">{r.id}</td>
+                <td className="px-4 py-3 text-slate-500 text-xs">{r.candidateCode}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{r.name}</td>
                 <td className="px-4 py-3 text-slate-500">{r.phone}</td>
                 <td className="px-4 py-3 text-slate-500">{r.position}</td>
-                <td className="px-4 py-3 text-slate-500">{fmtDate(r.appliedAt)}</td>
+                <td className="px-4 py-3 text-slate-500">{fmtDateShortTime(r.appliedAt)}</td>
                 <td className="px-4 py-3"><StatusBadge status={r.status} /></td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">

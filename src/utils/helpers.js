@@ -7,6 +7,9 @@ export const daysAgo = (n) => {
 export const fmtDate = (iso) =>
   new Date(iso).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
+export const fmtDateShortTime = (iso) =>
+  new Date(iso).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
 export const fmtDateTime = (iso) =>
   new Date(iso).toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 

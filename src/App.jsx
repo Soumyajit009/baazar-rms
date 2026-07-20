@@ -114,7 +114,17 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (session) loadApplications();
+    if (!session) return;
+    loadApplications();
+
+    const channel = supabase
+      .channel("applications-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "applications" }, () => {
+        loadApplications();
+      })
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
   }, [session]);
 
   const saveForm = async (statusValue) => {
