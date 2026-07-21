@@ -10,7 +10,7 @@ import CandidateDrawer from "./components/CandidateDrawer";
 import NewApplications from "./components/NewApplications";
 import ScreeningProcess from "./components/ScreeningProcess";
 import FinalShortlist from "./components/FinalShortlist";
-import AtsComingSoon from "./components/AtsComingSoon";
+import AtsResumeChecker from "./components/AtsResumeChecker";
 import SettingsPage from "./components/SettingsPage";
 import Toast from "./components/shared/Toast";
 import { DEFAULT_FORM } from "./data/constants";
@@ -30,6 +30,7 @@ function dbRowToApplication(row) {
     experience: row.experience || "-",
     position: row.position || "-",
     resume: row.resumes?.[0]?.file_name || "—",
+    resumePath: row.resumes?.[0]?.storage_path || null,
     appliedAt: row.applied_at,
     status: row.status,
     rating: row.rating || 0,
@@ -102,7 +103,7 @@ export default function App() {
     setLoadingApplications(true);
     const { data, error } = await supabase
       .from("applications")
-      .select("*, candidates(full_name, phone, email), resumes(file_name)")
+      .select("*, candidates(full_name, phone, email), resumes(file_name, storage_path)")
       .order("applied_at", { ascending: false });
 
     if (error) {
@@ -236,7 +237,7 @@ export default function App() {
             {view === "new" && <NewApplications applications={applications} onMoveToScreening={handleMoveToScreening} onDelete={handleDelete} onView={setDrawerCandidate} />}
             {view === "screening" && <ScreeningProcess applications={applications} onRate={handleRate} onNotes={handleNotes} onReject={handleReject} onHold={handleHold} onResume={handleResume} onMoveToShortlist={handleMoveToShortlist} />}
             {view === "shortlist" && <FinalShortlist applications={applications} onInterviewStatus={handleInterviewStatus} onMarkSelected={handleMarkSelected} onReject={handleReject} />}
-            {view === "ats" && <AtsComingSoon />}
+            {view === "ats" && <AtsResumeChecker />}
             {view === "settings" && <SettingsPage showToast={showToast} />}
           </main>
         </div>

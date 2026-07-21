@@ -1,8 +1,28 @@
-import { X, Mail, Phone as PhoneIcon, Download } from "lucide-react";
+import { useState } from "react";
+import { X, Mail, Phone as PhoneIcon, Download, Eye } from "lucide-react";
 import { fmtDate } from "../utils/helpers";
+import { supabase } from "../lib/supabase";
 
 export default function CandidateDrawer({ candidate, onClose, onMoveToScreening }) {
+  const [opening, setOpening] = useState(false);
+
   if (!candidate) return null;
+
+  const openResume = async (mode) => {
+    if (!candidate.resumePath) return;
+    setOpening(true);
+    const { data, error } = await supabase.storage
+      .from("resumes")
+      .createSignedUrl(candidate.resumePath, 60, mode === "download" ? { download: candidate.resume } : undefined);
+    setOpening(false);
+
+    if (error) {
+      console.error("Failed to open resume:", error);
+      return;
+    }
+    window.open(data.signedUrl, "_blank");
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
@@ -17,7 +37,7 @@ export default function CandidateDrawer({ candidate, onClose, onMoveToScreening 
           </div>
           <div>
             <p className="font-semibold text-slate-900">{candidate.name}</p>
-            <p className="text-xs text-slate-400">{candidate.id}</p>
+            <p className="text-xs text-slate-400">{candidate.candidateCode}</p>
           </div>
         </div>
         <div className="space-y-3 text-sm">
@@ -46,7 +66,24 @@ export default function CandidateDrawer({ candidate, onClose, onMoveToScreening 
           <p className="text-xs text-slate-400 mb-2">Resume</p>
           <div className="flex items-center justify-between border border-slate-200 rounded-lg px-3 py-2.5">
             <span className="text-sm text-slate-600 truncate">{candidate.resume}</span>
-            <Download size={15} className="text-slate-400 shrink-0 cursor-pointer hover:text-blue-600" />
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={() => openResume("view")}
+                disabled={!candidate.resumePath || opening}
+                title="View resume"
+                className="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Eye size={15} className="text-slate-400 hover:text-blue-600" />
+              </button>
+              <button
+                onClick={() => openResume("download")}
+                disabled={!candidate.resumePath || opening}
+                title="Download resume"
+                className="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Download size={15} className="text-slate-400 hover:text-blue-600" />
+              </button>
+            </div>
           </div>
         </div>
         <div className="flex gap-2 mt-6">

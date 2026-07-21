@@ -186,23 +186,27 @@ export default function CandidatePortal({ formConfig, formId, onSubmitted, onExi
                     </div>
                   )}
                   {f.type === "File Upload" && (
-                    <label className="border border-dashed border-slate-300 rounded-lg px-3 py-6 flex flex-col items-center justify-center text-xs text-slate-400 cursor-pointer hover:border-blue-400 hover:bg-blue-50/30">
-                      <Upload size={18} className="mb-1 text-slate-400" />
-                      {resumeFile ? resumeFile.name : `Click to upload (Max ${formConfig.maxResumeSize} KB, ${formConfig.acceptedFormats.join("/")})`}
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept=".pdf,.docx"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setResumeFile(file);
-                            setVal(f.id, file.name);
-                          }
-                        }}
-                      />
-                    </label>
-                  )}
+  <label className={`border rounded-lg px-3 py-6 flex flex-col items-center justify-center text-xs cursor-pointer transition-colors ${
+    resumeFile
+      ? "border-green-400 bg-green-50 text-green-700"
+      : "border-dashed border-slate-300 text-slate-400 hover:border-blue-400 hover:bg-blue-50/30"
+  }`}>
+    {resumeFile ? <Check size={18} className="mb-1 text-green-600" /> : <Upload size={18} className="mb-1 text-slate-400" />}
+    {resumeFile ? `${resumeFile.name} — uploaded` : `Click to upload (Max ${formConfig.maxResumeSize} KB, ${formConfig.acceptedFormats.join("/")})`}
+    <input
+      type="file"
+      className="hidden"
+      accept=".pdf,.docx"
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          setResumeFile(file);
+          setVal(f.id, file.name);
+        }
+      }}
+    />
+  </label>
+)}
                   {["Short Text", "Email", "Phone Number", "Date", "Number"].includes(f.type) && (
                     <input
                       type={f.type === "Email" ? "email" : f.type === "Date" ? "date" : f.type === "Number" ? "number" : f.type === "Phone Number" ? "tel" : "text"}
